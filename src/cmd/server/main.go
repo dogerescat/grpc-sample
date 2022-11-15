@@ -78,13 +78,17 @@ func (s *myServer) HelloBiStreams(stream hellopb.GreetingService_HelloBiStreamsS
 func NewMyServer() *myServer {
 	return &myServer{}
 }
+
 func main() {
 	port := 8080
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		panic(err)
 	}
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(myUnaryServerInterceptor1),
+		grpc.StreamInterceptor(myStreamServerInterceptor1),
+	)
 	hellopb.RegisterGreetingServiceServer(s, NewMyServer())
 	reflection.Register(s)
 	go func() {
